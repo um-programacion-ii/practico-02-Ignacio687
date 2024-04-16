@@ -12,9 +12,9 @@ Consigna: tomando como contexto la consigna del TP 1 realizar lo siguiente:
    
     a. Agregar la interface Cocinable, sólo se puede cocinar con los objetos que implementen esta interface
    
-    b. Agregar la interface Despensable, esto permitirá generar una clase nueva Utensilio para agregar a las recetas los utensilios a usarse. Ahora en la despensa no habrá sólo ingredientes, sino todos aquellos objetos que sean Despensable's
+    b. Agregar la interface entity.Despensable, esto permitirá generar una clase nueva Utensilio para agregar a las recetas los utensilios a usarse. Ahora en la despensa no habrá sólo ingredientes, sino todos aquellos objetos que sean entity.Despensable's
    
-    c. Convertir los arreglos usados en el TP anterior en colecciones. Sugerencia, para acceder a los Ingrediente's que están en la Despensa más rápidamente cambiar el arreglo de Ingrediente's de la despensa por un Map de Despensable's donde la clave sea un string con el nombre del objeto.
+    c. Convertir los arreglos usados en el TP anterior en colecciones. Sugerencia, para acceder a los Ingrediente's que están en la Despensa más rápidamente cambiar el arreglo de Ingrediente's de la despensa por un Map de entity.Despensable's donde la clave sea un string con el nombre del objeto.
    
     d. Agregar la interface Reutilizable para los Utensilio's que tenga el atributo vidaUtil que se irá consumiendo a medida que sea utilizado para cocinar
    
