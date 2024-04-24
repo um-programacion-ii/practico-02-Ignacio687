@@ -54,7 +54,7 @@ public class Despensa {
             Cocinable existingIngrediente = this.inspectIngrediente(ingrediente.getNombre());
             existingIngrediente.restock(ingrediente.getCantidad());
         } catch (InvalidNameException e) {
-            this.despensables.put(ingrediente.getNombre(), ingrediente);
+            this.despensables.put(ingrediente.getNombre().trim().toLowerCase(), ingrediente);
         }
     }
 
@@ -63,7 +63,7 @@ public class Despensa {
             this.inspectUtensilio(utensilio.getNombre());
             throw new ObjectAlreadyExistsException(String.format("Utensilio %s already exists", utensilio.getNombre()));
         } catch (InvalidNameException e) {
-            this.despensables.put(utensilio.getNombre(), utensilio);
+            this.despensables.put(utensilio.getNombre().trim().toLowerCase(), utensilio);
         }
     }
 

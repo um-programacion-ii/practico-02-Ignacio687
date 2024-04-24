@@ -26,25 +26,8 @@ public class Main {
             put("pizza", new Pizza());
         }};
         CocinaService cocinaService = new CocinaService(recetas, despensaService);
-        for (Receta receta: cocinaService.getRecetas().values()) {
-            for (Cocinable cocinable: receta.getIngredientes().values()) {
-                despensa.addIngrediente(new Ingrediente(cocinable.getNombre(), cocinable.getCantidad()));
-            }
-            for (Reutilizable reutilizable: receta.getUtensilios().values()) {
-                try {
-                    despensa.addUtensilio(new Utensilio(reutilizable.getNombre(), reutilizable.getVidaUtil()));
-                } catch (ObjectAlreadyExistsException e) {
-                    try {
-                        Reutilizable utensilio = despensa.inspectUtensilio(reutilizable.getNombre());
-                        utensilio.setVidaUtil(utensilio.getVidaUtil()+reutilizable.getVidaUtil());
-                    } catch (InvalidNameException ex) {
-                        throw new RuntimeException(ex);
-                    }
-                }
-            }
-        }
         System.out.println("El chef "+ chef + " va a preparar las siguientes recetas:");
-        System.out.println(CocinaService.showRecetas(cocinaService.getRecetas()));
+        System.out.println(KitchenService.showRecetas(cocinaService.getRecetas()));
         try {
             String[] nombresRecetas = {"Ensalada", "Fideos", "Huevo Duro", "Pizza"};
             System.out.println("Estado de despensa: \n"+despensa);
