@@ -26,9 +26,9 @@ public interface KitchenService {
 
     Receta getReceta(String name) throws InvalidNameException;
 
-    void prepareKitchen();
-
     void restockKitchen();
+
+    void prepareKitchen();
 
     String makeReceta(String name) throws InvalidNameException;
 }

@@ -140,7 +140,7 @@ public class DespensaService implements PantryService{
             try {
                 this.despensa.inspectUtensilio(reutilizable.getNombre()).renew();
             } catch (InvalidNameException e) {
-                .
+                // Este catch queda vacío, ya que el objetivo del método es ignorar los objetos no existentes.
             }
         }
     }
@@ -158,7 +158,7 @@ public class DespensaService implements PantryService{
             try {
                 this.despensa.inspectIngrediente(cocinable.getNombre()).restock(cocinable.getCantidad());
             } catch (InvalidNameException e) {
-                .
+                // Este catch queda vacío, ya que el objetivo del método es ignorar los objetos no existentes.
             }
         }
     }

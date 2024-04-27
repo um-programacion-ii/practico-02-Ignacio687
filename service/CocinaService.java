@@ -1,8 +1,6 @@
 package service;
 
-import entity.Cocinable;
-import entity.Despensa;
-import entity.Reutilizable;
+import entity.*;
 import entity.customExceptions.InvalidNameException;
 import entity.customExceptions.StockInsuficienteException;
 import entity.customExceptions.VidaUtilInsuficienteException;
@@ -63,18 +61,36 @@ public class CocinaService implements KitchenService{
     }
 
     @Override
-    public void prepareKitchen() {
-
+    public void restockKitchen() {
+        this.despensaService.restockIngredientes();
+        this.despensaService.renovarUtensilios();
     }
 
     @Override
-    public void restockKitchen() {
-
+    public void prepareKitchen() {
+        for (Receta receta: this.recetas.values()) {
+            Set<Cocinable> ingredientes = receta.getIngredientes().values().stream()
+                    .map(obj -> new Ingrediente(obj.getNombre(), 0))
+                    .map(Cocinable.class::cast)
+                    .collect(Collectors.toSet());
+            this.despensaService.addIngredientes(ingredientes);
+            Set<Reutilizable> utensilios = receta.getUtensilios().values().stream()
+                    .map(obj -> new Utensilio(obj.getNombre(), (obj.getVidaUtil()*20)))
+                    .map(Reutilizable.class::cast)
+                    .collect(Collectors.toSet());
+            this.despensaService.addUtensilios(utensilios);
+        }
+        this.restockKitchen();
     }
 
     @Override
     public String makeReceta(String name) throws InvalidNameException {
         Receta receta = this.getReceta(name);
+        try {
+            this.despensaService.useIngredientes(new HashSet<>(receta.getIngredientes().values()));
+        } catch (StockInsuficienteException e) {
+
+        }
 
         return this.getReceta(name).getPreparacion();
     }
