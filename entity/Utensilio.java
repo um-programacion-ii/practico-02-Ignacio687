@@ -35,6 +35,11 @@ public class Utensilio implements Reutilizable {
     }
 
     @Override
+    public Integer getvidaUtilInicial() {
+        return this.vidaUtilInicial;
+    }
+
+    @Override
     public String toString() {
         return nombre + "  Vida útil: "+vidaUtil;
     }

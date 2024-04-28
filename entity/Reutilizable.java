@@ -16,4 +16,6 @@ public interface Reutilizable extends Despensable{
 
     public void setVidaUtil(Integer vidaUtil);
 
+    public Integer getvidaUtilInicial();
+
 }
