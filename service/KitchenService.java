@@ -1,8 +1,6 @@
 package service;
 
-import entity.customExceptions.InvalidNameException;
-import entity.customExceptions.StockInsuficienteException;
-import entity.customExceptions.VidaUtilInsuficienteException;
+import entity.customExceptions.*;
 import entity.recetas.Receta;
 
 import java.util.Map;
@@ -24,11 +22,17 @@ public interface KitchenService {
                 .collect(Collectors.joining("\n\n- ", "\n\n- ", ""));
     }
 
-    Receta getReceta(String name) throws InvalidNameException;
+    void addReceta(String recetaName, Receta receta) throws ObjectAlreadyExistsException;
+
+    Receta getReceta(String recetaName) throws InvalidNameException;
 
     void restockKitchen();
 
     void prepareKitchen();
 
-    String makeReceta(String name) throws InvalidNameException;
+    String getMissingItems(String recetaName) throws InvalidNameException;
+
+    String makeReceta(String recetaName) throws InvalidNameException, MissingObjectException;
+
+    String showPantryStatus();
 }

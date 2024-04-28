@@ -1,9 +1,7 @@
 package service;
 
 import entity.*;
-import entity.customExceptions.InvalidNameException;
-import entity.customExceptions.StockInsuficienteException;
-import entity.customExceptions.VidaUtilInsuficienteException;
+import entity.customExceptions.*;
 import entity.recetas.Receta;
 
 import java.util.*;
@@ -51,10 +49,20 @@ public class CocinaService implements KitchenService{
     }
 
     @Override
-    public Receta getReceta(String name) throws InvalidNameException {
-        Receta receta = this.recetas.get(name.trim().toLowerCase());
+    public void addReceta(String recetaName, Receta receta) throws ObjectAlreadyExistsException {
+        try {
+            this.getReceta(recetaName);
+            throw new ObjectAlreadyExistsException("The recipe "+recetaName+" already exists");
+        } catch (InvalidNameException e) {
+            this.recetas.put(recetaName.trim().toLowerCase(), receta);
+        }
+    }
+
+    @Override
+    public Receta getReceta(String recetaName) throws InvalidNameException {
+        Receta receta = this.recetas.get(recetaName.trim().toLowerCase());
         if (receta == null) {
-            throw new InvalidNameException("The recipe "+name+" doesn't exist.");
+            throw new InvalidNameException("The recipe "+recetaName+" doesn't exist.");
         } else {
             return receta;
         }
@@ -80,19 +88,61 @@ public class CocinaService implements KitchenService{
                     .collect(Collectors.toSet());
             this.despensaService.addUtensilios(utensilios);
         }
-        this.restockKitchen();
+    }
+
+    public String getMissingItems(String recetaName) throws InvalidNameException {
+        StringBuilder missingItems = new StringBuilder();
+        Receta receta = this.getReceta(recetaName);
+        try {
+            this.despensaService.verifyStock(new HashSet<>(receta.getIngredientes().values()));
+        } catch (StockInsuficienteException e) {
+            missingItems.append("\n").append(e.getMessage());
+        }
+        try {
+            this.despensaService.verifyVidaUtil(new HashSet<>(receta.getUtensilios().values()));
+        } catch (VidaUtilInsuficienteException e) {
+            missingItems.append("\n").append(e.getMessage());
+        }
+        return missingItems.toString();
     }
 
     @Override
-    public String makeReceta(String name) throws InvalidNameException {
-        Receta receta = this.getReceta(name);
+    public String makeReceta(String recetaName) throws InvalidNameException, MissingObjectException {
+        Receta receta = this.getReceta(recetaName);
+        Set<Cocinable> ingredientes = new HashSet<>(receta.getIngredientes().values());
+        Set<Reutilizable> utensilios = new HashSet<>(receta.getUtensilios().values());
         try {
-            this.despensaService.useIngredientes(new HashSet<>(receta.getIngredientes().values()));
-        } catch (StockInsuficienteException e) {
-
+            this.despensaService.verifyStock(ingredientes);
+            this.despensaService.verifyVidaUtil(utensilios);
+        } catch (StockInsuficienteException | VidaUtilInsuficienteException e) {
+            this.restockKitchen();
         }
-
-        return this.getReceta(name).getPreparacion();
+        boolean restockFailFlag = false;
+        boolean renewFailFlag = false;
+        while (true) {
+            try {
+                this.despensaService.useIngredientes(ingredientes);
+                this.despensaService.useUtensilios(utensilios);
+                break;
+            } catch (StockInsuficienteException e) {
+                if (restockFailFlag) { throw new MissingObjectException(
+                            "Verify all items needed for the recipe exists executing 'prepareKitchen()'"); }
+                Set<Cocinable> missingIngredientes = this.despensaService.getMissingIngredientes(ingredientes);
+                this.despensaService.restockIngredientes(missingIngredientes);
+                restockFailFlag = true;
+            } catch (VidaUtilInsuficienteException e) {
+                if (renewFailFlag) { throw new MissingObjectException(
+                        "Verify all items needed for the recipe exists executing 'prepareKitchen()'"); }
+                Set<Reutilizable> missingUtensilios = this.despensaService.getMissingUtensilios(utensilios);
+                this.despensaService.renovarUtensilios(missingUtensilios);
+                renewFailFlag = true;
+            }
+        }
+        return this.getReceta(recetaName).getPreparacion();
     }
 
+    @Override
+    public String showPantryStatus() {
+        return this.despensaService.getDespensa().toString();
+    }
 }

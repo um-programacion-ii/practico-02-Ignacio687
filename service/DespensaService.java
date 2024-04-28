@@ -40,7 +40,7 @@ public class DespensaService implements PantryService{
 
     @Override
     public void verifyStock(Set<Cocinable> ingredienteSet) throws StockInsuficienteException {
-        List<Cocinable> ingredientesFaltantes = this.getMissingIngredientes(ingredienteSet);
+        Set<Cocinable> ingredientesFaltantes = this.getMissingIngredientes(ingredienteSet);
         if (!ingredientesFaltantes.isEmpty()) {
             throw new StockInsuficienteException("Faltan los siguientes ingredientes:  "
                     + Despensa.showItems(ingredientesFaltantes.stream()
@@ -50,7 +50,7 @@ public class DespensaService implements PantryService{
 
     @Override
     public void verifyVidaUtil(Set<Reutilizable> utensilioSet) throws VidaUtilInsuficienteException {
-        List<Reutilizable> utensiliosFaltantes = this.getMissingUtensilios(utensilioSet);
+        Set<Reutilizable> utensiliosFaltantes = this.getMissingUtensilios(utensilioSet);
         if (!utensiliosFaltantes.isEmpty()) {
             throw new VidaUtilInsuficienteException("Tiempo faltante en los siguientes utensilios:  "
                     + Despensa.showItems(utensiliosFaltantes.stream()
@@ -59,7 +59,7 @@ public class DespensaService implements PantryService{
     }
 
     @Override
-    public List<Cocinable> getMissingIngredientes(Set<Cocinable> ingredienteSet) {
+    public Set<Cocinable> getMissingIngredientes(Set<Cocinable> ingredienteSet) {
         Despensa ingredientesFaltantes = new Despensa();
         for (Cocinable ingrediente: ingredienteSet) {
             try {
@@ -75,11 +75,11 @@ public class DespensaService implements PantryService{
         }
         return ingredientesFaltantes.getDespensables().values().stream()
                 .map(Cocinable.class::cast)
-                .toList();
+                .collect(Collectors.toSet());
     }
 
     @Override
-    public List<Reutilizable> getMissingUtensilios(Set<Reutilizable> utensilioSet) {
+    public Set<Reutilizable> getMissingUtensilios(Set<Reutilizable> utensilioSet) {
         Despensa utensiliosFaltantes = new Despensa();
         for (Reutilizable utensilio: utensilioSet) {
             try {
@@ -100,7 +100,7 @@ public class DespensaService implements PantryService{
         }
         return utensiliosFaltantes.getDespensables().values().stream()
                 .map(Reutilizable.class::cast)
-                .toList();
+                .collect(Collectors.toSet());
     }
 
     @Override

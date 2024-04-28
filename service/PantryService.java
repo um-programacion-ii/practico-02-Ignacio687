@@ -19,9 +19,9 @@ public interface PantryService {
 
     void verifyVidaUtil(Set<Reutilizable> utensilioSet) throws VidaUtilInsuficienteException;
 
-    List<Cocinable> getMissingIngredientes(Set<Cocinable> ingredienteSet);
+    Set<Cocinable> getMissingIngredientes(Set<Cocinable> ingredienteSet);
 
-    List<Reutilizable> getMissingUtensilios(Set<Reutilizable> utensilioSet);
+    Set<Reutilizable> getMissingUtensilios(Set<Reutilizable> utensilioSet);
 
     void useIngredientes(Set<Cocinable> ingredientes) throws StockInsuficienteException;
 

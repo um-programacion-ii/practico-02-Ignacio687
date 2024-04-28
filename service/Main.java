@@ -7,6 +7,7 @@ import entity.customExceptions.StockInsuficienteException;
 import entity.customExceptions.VidaUtilInsuficienteException;
 import entity.recetas.*;
 
+import javax.print.attribute.standard.ReferenceUriSchemesSupported;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,57 +17,37 @@ public class Main {
         System.out.print("\u001B[31m");
         System.out.println("\nTP2 Punto2:\n");
         System.out.print("\u001B[0m");
-        Chef chef = new Chef("Fernando", 2);
-        Despensa despensa = new Despensa();
-        DespensaService despensaService = new DespensaService(despensa);
         Map<String, Receta> recetas = new HashMap<>() {{
-            put("ensalada", new Ensalada());
             put("fideos", new Fideos());
             put("huevo duro", new HuevoDuro());
             put("pizza", new Pizza());
         }};
-        CocinaService cocinaService = new CocinaService(recetas, despensaService);
-        System.out.println("El chef "+ chef + " va a preparar las siguientes recetas:");
-        System.out.println(KitchenService.showRecetas(cocinaService.getRecetas()));
+        CocinaService cocinaService = new CocinaService(recetas, new DespensaService());
+        Chef chef = new Chef("Fernando", 2, cocinaService);
+        System.out.println("\nPreparando la cocina para su uso...\n");
+        cocinaService.prepareKitchen();
+        System.out.println("Estado de la despensa:"+cocinaService.showPantryStatus());
+        System.out.println("\nEl "+ chef + " va a preparar las siguientes");
+        chef.showAvailableRecipes();
+        chef.makeRecetas();
+        System.out.println("\nUn cliente pidió una receta nueva: 'ensalada'\n");
         try {
-            String[] nombresRecetas = {"Ensalada", "Fideos", "Huevo Duro", "Pizza"};
-            System.out.println("Estado de despensa: \n"+despensa);
-            for (String receta: nombresRecetas) {
-                System.out.println("\nPreparación receta "+receta+":  \n");
-                System.out.println(cocinaService.makeReceta(receta));
-                System.out.println(despensaService.getDespensa());
-            }
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
+            cocinaService.addReceta("Ensalada ", new Ensalada());
+            System.out.println(cocinaService.getReceta("ensalada"));
+            chef.makeReceta("ensalada");
+        } catch (ObjectAlreadyExistsException | InvalidNameException e) {
+            throw new RuntimeException(e);
         }
-        System.out.println("\n\nUn cliente quiere otra porción de fideos: ");
+        System.out.println("\nEl chef quemó una olla y rompió un tenedor...");
         try {
-            cocinaService.makeReceta(" Fideos");
-        } catch (StockInsuficienteException | VidaUtilInsuficienteException | InvalidNameException e) {
-            System.out.println(e.getMessage());
-        }
-        System.out.println("\nAgregando Ingredientes a la despensa: ");
-        try {
-            for (Cocinable cocinable: cocinaService.getReceta("Fideos").getIngredientes().values()) {
-                despensa.addIngrediente(new Ingrediente(cocinable.getNombre(), cocinable.getCantidad()));
-            }
-            System.out.println(Despensa.showItems(Despensa.getMapOf(Cocinable.class, despensa.getDespensables())));
-        } catch (InvalidNameException e) {
-            System.out.println(e.getMessage());
-        }
-        System.out.println("\nPreparando nuevamente: ");
-        try {
-            System.out.println(cocinaService.makeReceta("Fideos"));
-        } catch (StockInsuficienteException | VidaUtilInsuficienteException | InvalidNameException e) {
-            System.out.println(e.getMessage());
-        }
-        System.out.println("\nRenovando utensilios");
-        cocinaService.getDespensaService().renovarUtensilios();
-        System.out.println("\nPreparando nuevamente: ");
-        try {
-            System.out.println(cocinaService.makeReceta("Fideos"));
-        } catch (StockInsuficienteException | VidaUtilInsuficienteException | InvalidNameException e) {
-            System.out.println(e.getMessage());
+            Reutilizable olla = cocinaService.getDespensaService().getDespensa().inspectUtensilio("olla");
+            olla.use(olla.getVidaUtil());
+            Reutilizable cuchara = cocinaService.getDespensaService().getDespensa().inspectUtensilio("tenedor");
+            cuchara.use(cuchara.getVidaUtil());
+            System.out.println("\nEl último cliente pidió unos fideos...");
+            chef.makeReceta("FiDeos   ");
+        } catch (InvalidNameException | VidaUtilInsuficienteException e) {
+            throw new RuntimeException(e);
         }
     }
 }
